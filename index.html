@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AJAX Request with JavaScript</title>
+    <script>
+        function updateComment() {
+            var comment = document.getElementById("comment").value;
+            document.getElementById("response").innerText = comment;
+            localStorage.setItem("comment", comment); 
+        }
+
+        function sendComment() {
+            var comment = document.getElementById("comment").value;
+
+            if (comment.trim() === "") {
+                alert("Please enter a comment.");
+                return;
+            }
+
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "https://httpbin.org/post", true); 
+            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState == 4) {
+                    if (xhr.status == 200) {
+                        var serverResponse = JSON.parse(xhr.responseText).form.comment; 
+                        createCommentBox(serverResponse); 
+                        document.getElementById("response").innerText = serverResponse; 
+                    } else {
+                        alert("Error: " + xhr.status);
+                    }
+                }
+            };
+
+            xhr.send("comment=" + encodeURIComponent(comment));
+        }
+
+        function createCommentBox(message) {
+            var commentBox = document.createElement("div");
+            commentBox.className = "comment-box";
+            commentBox.innerText = message;
+
+            document.body.appendChild(commentBox);
+        }
+
+        window.onload = function() {
+            var savedComment = localStorage.getItem("comment");
+            if (savedComment) {
+                document.getElementById("comment").value = savedComment;
+                document.getElementById("response").innerText = savedComment;
+            }
+        }
+    </script>
+    <style>
+        .comment-box {
+    border: 1px solid #000;
+    padding: 20px;
+    background-color: #33147b;
+    width: 25rem;
+    height: 20rem;
+    text-align: center;
+    color: white;
+        }
+    </style>
+</head>
+<body>
+    <h1>AJAX Request with JavaScript</h1>
+    <input type="text" id="comment" placeholder="javascript" oninput="updateComment()">
+    <button onclick="sendComment()">Send comment</button>
+    <h2>Get comment: <span id="response"></span></h2>
+</body>
+</html>
